@@ -7,7 +7,7 @@
 //
 
 #import "NSImage+OpenCV.h"
-
+#import "opencv2/imgproc.hpp"
 
 @implementation NSImage (OpenCV)
 
@@ -86,10 +86,6 @@
 
 - (instancetype)initWithCVMat:(const cv::Mat&)cvMat
 {
-    NSData *data = [NSData dataWithBytesNoCopy:cvMat.data
-                                        length:cvMat.elemSize() * cvMat.total()
-                                  freeWhenDone:NO];
-    
     CGColorSpaceRef colorSpace;
     
     if (cvMat.elemSize() == 1)
@@ -99,7 +95,12 @@
     else
     {
         colorSpace = CGColorSpaceCreateDeviceRGB();
+        cv::cvtColor(cvMat, cvMat, CV_BGR2RGB);
     }
+
+    NSData *data = [NSData dataWithBytesNoCopy:cvMat.data
+                                        length:cvMat.elemSize() * cvMat.total()
+                                  freeWhenDone:NO];
     
     CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
     
